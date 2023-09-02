@@ -14,6 +14,26 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth.basic')->group(function () {
+
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+
+    Route::post('/tokens/create', function (Request $request) {
+
+        // Revoke all tokens...
+        $request->user()->tokens()->delete();
+
+        // Create a new token
+        $token = $request->user()->createToken('token');
+
+        return ['token' => $token->plainTextToken];
+    });
+});
+
+Route::middleware('auth:sanctum')->get('/users', function () {
+
+    return \App\Models\User::all();
+
 });
